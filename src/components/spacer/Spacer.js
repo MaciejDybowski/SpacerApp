@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import './Spacer.css'
 import TextField from '@material-ui/core/TextField';
 import axios from '../../axios/axios';
-import {useSelector , useDispatch} from 'react-redux';
-import {setData} from '../../actions'
+import { useSelector, useDispatch } from 'react-redux';
+import { setData } from '../../actions'
+import Loader from 'react-loader-spinner'
+import Results from '../results';
 
 function Spacer() {
     const dispatch = useDispatch();
@@ -11,26 +13,32 @@ function Spacer() {
     // stan wewnętrzny inputa - kontrolownay komponent
     const [inputValue, setInputValue] = useState("");
     const [loadedData, setLoadedData] = useState(false);
+    const [loadSpinner, setLoadSpinner] = useState(false);
 
-    // ustawianie stanu inputa
-    const handleInput = (e) => {
-        setInputValue(e);
-    }
-
-    // pobieranie z API
     useEffect(() => {
-        async function fetchData() {
-            const request = await axios.get('search?q='+inputValue+'&media_type=image')
-                .then(res => {
-                    dispatch(setData(res.data.collection.items));
-                    console.log(state);
-                    console.log(res.data.collection);
-                    setLoadedData(true);
-                })
-            return request;
-        }
-        fetchData();
-    }, [inputValue])
+        setLoadSpinner(true);
+        const delayDebounceFn = setTimeout(() => {
+            //console.log(inputValue)
+            if (inputValue !== "") {
+                axios.get('search?q=' + inputValue + '&media_type=image')
+                    .then(res => {
+                        dispatch(setData(res.data.collection.items));
+                        /* console.log(state);
+                        console.log(res.data.collection); */
+                        setLoadedData(true);
+                        setLoadSpinner(false);
+
+                    })
+            } else {
+                dispatch(setData([]));
+                setLoadedData(false);
+                setLoadSpinner(false);
+            }
+        }, 2000)
+
+        return () => clearTimeout(delayDebounceFn)
+    }, [inputValue, state, dispatch])
+
 
     return (
         <div className='spacer'>
@@ -38,14 +46,21 @@ function Spacer() {
             <div className='hello-text'>Being your journey through our amazaing galaxy, and discover places you never even heard of.</div>
             <div className='incentive-text'>Type anything space-related to start.</div>
             <div className='search'>
-                <TextField autoFocus={true} label="Search..." value={inputValue} onChange={(e) => handleInput(e.currentTarget.value)} />
+                <TextField autoFocus={true} label="Search" value={inputValue} onChange={(e) => setInputValue(e.currentTarget.value) } />
             </div>
-            {loadedData ? state.map((item) => (
-                <>
-                <p>{item.data[0].description}</p>
-                <img src={item.links[0].href} alt ='nasa img' />
-                </>
-            )) : <p>brak danych</p>}
+
+            {loadSpinner ? <Loader
+                type="TailSpin"
+                color="#00BFFF"
+                height={50}
+                width={50}
+                timeout={2000} //3 secs
+
+            />
+                :
+                loadedData ? <Results/> : <p>brak danych</p>
+            }
+            {/* {loadedData ? <Results /> : <></>} */}
         </div>
     )
 }
