@@ -4,8 +4,10 @@ import TextField from '@material-ui/core/TextField';
 import axios from '../../axios/axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setData } from '../../actions'
-import Loader from 'react-loader-spinner'
 import Results from '../results';
+
+
+
 
 function Spacer() {
     const dispatch = useDispatch();
@@ -14,6 +16,9 @@ function Spacer() {
     const [inputValue, setInputValue] = useState("");
     const [loadedData, setLoadedData] = useState(false);
     const [loadSpinner, setLoadSpinner] = useState(false);
+
+
+
 
     useEffect(() => {
         setLoadSpinner(true);
@@ -27,6 +32,7 @@ function Spacer() {
                         console.log(res.data.collection); */
                         setLoadedData(true);
                         setLoadSpinner(false);
+
 
                     })
             } else {
@@ -46,9 +52,10 @@ function Spacer() {
             <div className='hello-text'>Being your journey through our amazaing galaxy, and discover places you never even heard of.</div>
             <div className='incentive-text'>Type anything space-related to start.</div>
             <div className='search'>
-                <TextField autoFocus={true} label="Search" value={inputValue} onChange={(e) => setInputValue(e.currentTarget.value) } />
+                <TextField autoFocus={true} label="Search" value={inputValue} onChange={(e) => setInputValue(e.currentTarget.value)} />
             </div>
 
+            {/* 
             {loadSpinner ? <Loader
                 type="TailSpin"
                 color="#00BFFF"
@@ -59,8 +66,8 @@ function Spacer() {
             />
                 :
                 loadedData ? <Results/> : <p>brak danych</p>
-            }
-            {/* {loadedData ? <Results /> : <></>} */}
+            } */}
+            {loadedData ? <Results /> : <></>}
         </div>
     )
 }
